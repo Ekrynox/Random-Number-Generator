@@ -111,6 +111,9 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Generate.ino">
+      <FileType>CppCode</FileType>
+    </None>
     <None Include="RNG Arduino.ino">
       <FileType>CppCode</FileType>
     </None>

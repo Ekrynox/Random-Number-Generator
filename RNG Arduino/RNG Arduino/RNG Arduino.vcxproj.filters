@@ -17,6 +17,7 @@
   <ItemGroup>
     <None Include="RNG Arduino.ino" />
     <None Include="SerialCMD.ino" />
+    <None Include="Generate.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.RNG Arduino.vsarduino.h">
