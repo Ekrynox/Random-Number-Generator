@@ -93,7 +93,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\RNG Arduino;D:\appli\Arduino\hardware\arduino\avr\libraries\SPI\src;D:\appli\Arduino\libraries\Ethernet\src;D:\appli\Arduino\libraries\SD\src;D:\appli\Arduino\libraries\Ethernet\src\utility;D:\appli\Arduino\libraries\SD\src\utility;D:\appli\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\..\..\..\..\Documents\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\cores\arduino;D:\appli\Arduino\hardware\arduino\avr\variants\mega;D:\appli\Arduino\hardware\tools\avr\avr\include;D:\appli\Arduino\hardware\tools\avr\avr\include\avr;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\RNG Arduino;D:\appli\Arduino\hardware\arduino\avr\libraries\SPI\src;D:\appli\Arduino\libraries\Ethernet\src;$(ProjectDir)..\..\..\..\..\..\Documents\Arduino\libraries\SdFat\src;D:\appli\Arduino\libraries\Ethernet\src\utility;D:\appli\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\..\..\..\..\Documents\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\cores\arduino;D:\appli\Arduino\hardware\arduino\avr\variants\mega;D:\appli\Arduino\hardware\tools\avr\avr\include;D:\appli\Arduino\hardware\tools\avr\avr\include\avr;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>$(ProjectDir)__vm\.RNG Arduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>__AVR_atmega2560__;__AVR_ATmega2560__;F_CPU=16000000L;ARDUINO=10809;ARDUINO_AVR_MEGA2560;ARDUINO_ARCH_AVR;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -111,10 +111,16 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Ethernet.ino">
+      <FileType>CppCode</FileType>
+    </None>
     <None Include="Generate.ino">
       <FileType>CppCode</FileType>
     </None>
     <None Include="RNG Arduino.ino">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="SD.ino">
       <FileType>CppCode</FileType>
     </None>
     <None Include="SerialCMD.ino">

@@ -18,6 +18,8 @@
     <None Include="RNG Arduino.ino" />
     <None Include="SerialCMD.ino" />
     <None Include="Generate.ino" />
+    <None Include="SD.ino" />
+    <None Include="Ethernet.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.RNG Arduino.vsarduino.h">
