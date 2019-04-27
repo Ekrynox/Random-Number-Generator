@@ -1,17 +1,20 @@
 int value;
 char buff;
 
-int threshold = 2048 * 4;
+
+#ifdef USE_ADC
+
+int threshold = 2700 << 2;
 
 
-int genValue() {
+inline int genValue() {
 	CLR_ADC();
 	value = SPI.transfer16(0x0000);
 	SET_ADC();
 	return value >> 2;
 }
 
-int genBit() {
+inline byte genBit() {
 	CLR_ADC();
 
 	if (SPI.transfer16(0x0000) > threshold) {
@@ -24,7 +27,7 @@ int genBit() {
 	}
 }
 
-char genBitChar() {
+inline char genBitChar() {
 	CLR_ADC();
 
 	if (SPI.transfer16(0x0000) > threshold) {
@@ -37,21 +40,24 @@ char genBitChar() {
 	}
 }
 
-char genByte() {
-	buff = genBit();
-	buff <<= 1;
-	buff += genBit();
-	buff <<= 1;
-	buff += genBit();
-	buff <<= 1;
-	buff += genBit();
-	buff <<= 1;
-	buff += genBit();
-	buff <<= 1;
-	buff += genBit();
-	buff <<= 1;
-	buff += genBit();
-	buff <<= 1;
-	buff += genBit();
-	return buff;
+#else
+
+inline byte genBit() {
+	if (READ_INPUT()) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
+
+inline char genBitChar() {
+	if (READ_INPUT()) {
+		return '1';
+	}
+	else {
+		return '0';
+	}
+}
+
+#endif

@@ -36,6 +36,7 @@ bool generateSD(long int nb, String filename) {
 	return true;
 }
 
+
 bool generateSDVN(long int nb, String filename) {
 	if (!SD.begin(SPI_SD_PIN, SPI_FULL_SPEED)) {
 		return false;

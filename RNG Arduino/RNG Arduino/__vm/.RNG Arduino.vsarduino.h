@@ -77,9 +77,9 @@ typedef void *__builtin_va_list;
 #define pgm_read_ptr(address_short)   short()
 
 #include "RNG Arduino.ino"
+#include "CMD.ino"
 #include "Ethernet.ino"
 #include "Generate.ino"
 #include "SD.ino"
-#include "SerialCMD.ino"
 #endif
 #endif
