@@ -49,7 +49,7 @@ void closeRNG(RNG device) {
 }
 
 
-char *RNGGenerate(RNG device, int nb) {
+char *RNGGenerate(RNG device, int nb, boolean vn) {
 	if (!device) {
 		return NULL;
 	}
@@ -62,6 +62,9 @@ char *RNGGenerate(RNG device, int nb) {
 		DWORD Bytes = 0;
 
 		int size = 12 + (int)log10(nb + 1);
+		if (vn) {
+			size += 3;
+		}
 		char *bits = (char *)malloc(sizeof(char) * size);
 		char TempChar;
 
@@ -69,7 +72,12 @@ char *RNGGenerate(RNG device, int nb) {
 			return NULL;
 		}
 
-		sprintf(bits, "generate %d\n", nb);
+		if (vn) {
+			sprintf(bits, "generate %d VN\n", nb);
+		}
+		else {
+			sprintf(bits, "generate %d\n", nb);
+		}
 
 		if (!WriteFile(device->hComm, bits, sizeof(char) * (size - 1), &Bytes, NULL)) {
 			free(bits);

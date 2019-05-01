@@ -18,4 +18,4 @@ typedef rng *RNG;
 RNG initRNGSerial(const wchar_t *port);
 void closeRNG(RNG device);
 
-char *RNGGenerate(RNG device, int nb);
+char *RNGGenerate(RNG device, int nb, boolean vn);

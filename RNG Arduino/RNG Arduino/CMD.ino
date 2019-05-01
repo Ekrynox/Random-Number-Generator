@@ -76,8 +76,16 @@ String commandAnalysis(String *cmd) {
 		if (String(argv[0]).equalsIgnoreCase("generate")) {
 			if (argc > 1 && (tmp = String(argv[1]).toInt()) > 0) {
 				if (argc == 2) {
-					freeCharMat(&argc, &argv);
-					return "Success";
+					start = millis();
+					if (generateSerial(tmp)) {
+						end = millis();
+						freeCharMat(&argc, &argv);
+						return "Success: " + String(end - start) + "ms";
+					}
+					else {
+						freeCharMat(&argc, &argv);
+						return "Failure";
+					}
 				}
 				
 				if (String(argv[2]).equalsIgnoreCase("SD")) {
@@ -108,8 +116,16 @@ String commandAnalysis(String *cmd) {
 
 				if (String(argv[2]).equalsIgnoreCase("VN")) {
 					if (argc == 3) {
-						freeCharMat(&argc, &argv);
-						return "Success";
+						start = millis();
+						if (generateSerialVN(tmp)) {
+							end = millis();
+							freeCharMat(&argc, &argv);
+							return "Success: " + String(end - start) + "ms";
+						}
+						else {
+							freeCharMat(&argc, &argv);
+							return "Failure";
+						}
 					}
 
 					if (String(argv[3]).equalsIgnoreCase("SD")) {

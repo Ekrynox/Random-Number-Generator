@@ -81,5 +81,6 @@ typedef void *__builtin_va_list;
 #include "Ethernet.ino"
 #include "Generate.ino"
 #include "SD.ino"
+#include "Serial.ino"
 #endif
 #endif

@@ -20,6 +20,7 @@
     <None Include="SD.ino" />
     <None Include="Ethernet.ino" />
     <None Include="CMD.ino" />
+    <None Include="Serial.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.RNG Arduino.vsarduino.h">

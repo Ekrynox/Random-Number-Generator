@@ -13,24 +13,14 @@
 
 #define SPI_SD_PIN 4
 #define SPI_ETHERNET_PIN 10
+#define SPI_ADC_PIN 40
 
-#ifdef USE_ADC
-	#define SPI_ADC_PIN 40
-	uint8_t adc_port;
-	uint8_t adc_bit;
-	volatile uint8_t *adc_out;
+uint8_t adc_port;
+uint8_t adc_bit;
+volatile uint8_t *adc_out;
 
-	#define CLR_ADC() (*adc_out &= ~adc_bit)
-	#define SET_ADC() (*adc_out |= adc_bit)
-#else
-	#define INPUT_PIN 22
-
-	uint8_t input_port;
-	uint8_t input_bit;
-	volatile uint8_t *input_in;
-
-	#define READ_INPUT() (*input_in & input_bit)
-#endif
+#define CLR_ADC() (*adc_out &= ~adc_bit)
+#define SET_ADC() (*adc_out |= adc_bit)
 
 
 // the setup function runs once when you press reset or power the board
@@ -43,23 +33,18 @@ void setup() {
 	pinMode(SPI_ETHERNET_PIN, OUTPUT);
 	digitalWrite(SPI_ETHERNET_PIN, HIGH);
 
-	#ifdef USE_ADC
-		pinMode(SPI_ADC_PIN, OUTPUT);
-
-		adc_port = digitalPinToPort(SPI_ADC_PIN);
-		adc_bit = digitalPinToBitMask(SPI_ADC_PIN);
-		adc_out = portOutputRegister(adc_port);
-
-		SET_ADC();
-	#else
-		pinMode(INPUT_PIN, INPUT);
-		input_port = digitalPinToPort(INPUT_PIN);
-		input_bit = digitalPinToBitMask(INPUT_PIN);
-		input_in = portInputRegister(input_port);
-	#endif
+	
+	pinMode(SPI_ADC_PIN, OUTPUT);
+	adc_port = digitalPinToPort(SPI_ADC_PIN);
+	adc_bit = digitalPinToBitMask(SPI_ADC_PIN);
+	adc_out = portOutputRegister(adc_port);
+	SET_ADC();
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 	serialCommand();
+	/*while (true) {
+		Serial.println(genValue());
+	}*/
 }

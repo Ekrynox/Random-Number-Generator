@@ -1,9 +1,6 @@
 int value;
 char buff;
 
-
-#ifdef USE_ADC
-
 int threshold = 2700 << 2;
 
 
@@ -40,24 +37,45 @@ inline char genBitChar() {
 	}
 }
 
-#else
+inline byte genBitVN() {
+	if (genBit() == 0) {
+		if (genBit() == 1) {
+			return 0;
+		}
+		return genBitVN();
+	}
 
-inline byte genBit() {
-	if (READ_INPUT()) {
+	if (genBit() == 0) {
 		return 1;
 	}
-	else {
-		return 0;
-	}
+	return genBitVN();
 }
 
-inline char genBitChar() {
-	if (READ_INPUT()) {
-		return '1';
+inline char genByteChar() {
+	char c = 0;
+	if (genBit()) {
+		c |= 0b10000000;
 	}
-	else {
-		return '0';
+	if (genBit()) {
+		c |= 0b1000000;
 	}
+	if (genBit()) {
+		c |= 0b100000;
+	}
+	if (genBit()) {
+		c |= 0b10000;
+	}
+	if (genBit()) {
+		c |= 0b1000;
+	}
+	if (genBit()) {
+		c |= 0b100;
+	}
+	if (genBit()) {
+		c |= 0b10;
+	}
+	if (genBit()) {
+		c |= 0b1;
+	}
+	return c;
 }
-
-#endif
