@@ -4,6 +4,15 @@
 #include "stdlib.h"
 
 
+boolean initRNGLib() {
+
+}
+
+boolean freeRNGLin() {
+
+}
+
+
 RNG initRNGSerial(const wchar_t *port) {
 	RNG device = (RNG)malloc(sizeof(RNG));
 	if (!device) {

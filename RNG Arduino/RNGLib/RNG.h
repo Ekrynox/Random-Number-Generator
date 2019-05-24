@@ -14,6 +14,8 @@ typedef struct {
 
 typedef rng *RNG;
 
+boolean initRNGLib();
+boolean freeRNGLin();
 
 RNG initRNGSerial(const wchar_t *port);
 void closeRNG(RNG device);

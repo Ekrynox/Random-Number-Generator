@@ -1,7 +1,14 @@
 int value;
-char buff;
 
 int threshold = 2700 << 2;
+
+int getThreshold() {
+	return threshold >> 2;
+}
+
+void setThreshold(int t) {
+	threshold = t << 2;
+}
 
 
 inline int genValue() {
@@ -78,4 +85,44 @@ inline char genByteChar() {
 		c |= 0b1;
 	}
 	return c;
+}
+
+
+void adjustThreshold(long int nb) {
+	long int i, j, k;
+	int n = 4;
+	int oldt;
+	int t = 4096 / 2;
+	setThreshold(t);
+
+	k = 0;
+	for (i = 0; i < nb; i++) {
+		k += genBit();
+	}
+
+	while (4096 / n > 0) {
+		oldt = t;
+		if (nb - k < k) {
+			t += 4096 / n;
+		}
+		else {
+			t -= 4096 / n;
+		}
+		setThreshold(t);
+
+		j = 0;
+		for (i = 0; i < nb; i++) {
+			j += genBit();
+		}
+
+		if (abs(nb - 2 * j) > abs(nb - 2 * k)) {
+			t = oldt;
+			setThreshold(t);
+		}
+		else {
+			k = j;
+		}
+
+		n *= 2;
+	}
 }

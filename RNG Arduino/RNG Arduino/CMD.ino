@@ -1,6 +1,3 @@
-extern int threshold;
-
-
 void splitCMD(String *cmd, int *argc, char ***argv) {
 	int i = 0;
 	int size = (*cmd).length();
@@ -87,7 +84,7 @@ String commandAnalysis(String *cmd) {
 						return "Failure";
 					}
 				}
-				
+
 				if (String(argv[2]).equalsIgnoreCase("SD")) {
 					if (argc == 3) {
 						start = millis();
@@ -167,18 +164,29 @@ String commandAnalysis(String *cmd) {
 		if (String(argv[0]).equalsIgnoreCase("threshold")) {
 			if (argc == 1) {
 				freeCharMat(&argc, &argv);
-				return String(threshold);
+				return String(getThreshold());
 			}
 
-			threshold = String(argv[1]).toInt();
+			if (String(argv[1]).equalsIgnoreCase("auto")) {
+				if (argc < 2 || (tmp = String(argv[2]).toInt()) <= 0) {
+					tmp = 10000000;
+				}
+				start = millis();
+				adjustThreshold(tmp);
+				end = millis();
+				freeCharMat(&argc, &argv);
+				return String(getThreshold()) + " : " + String(end - start) + "ms";
+			}
+
+			setThreshold(String(argv[1]).toInt());
 			freeCharMat(&argc, &argv);
-			return String(threshold);
+			return String(getThreshold());
 		}
 
 		freeCharMat(&argc, &argv);
 		return "Failure: Unknown command!";
 	}
-	
+
 	freeCharMat(&argc, &argv);
 	return "Failure: Empty command!";
 }
@@ -187,6 +195,8 @@ String commandAnalysis(String *cmd) {
 void serialCommand() {
 	if (Serial.available() > 0) {
 		String cmd = Serial.readStringUntil('\n');
+		digitalWrite(DEBUG_LED_PIN, HIGH);
 		Serial.println(commandAnalysis(&cmd));
+		digitalWrite(DEBUG_LED_PIN, LOW);
 	}
 }
