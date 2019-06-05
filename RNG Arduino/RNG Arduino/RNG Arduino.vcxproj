@@ -77,7 +77,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\RNG Arduino;D:\appli\Arduino\hardware\arduino\avr\libraries\SPI\src;D:\appli\Arduino\libraries\Ethernet\src;D:\appli\Arduino\libraries\Ethernet\src\utility;D:\appli\Arduino\libraries\SD\src;D:\appli\Arduino\libraries\SD\src\utility;D:\appli\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\..\..\..\..\Documents\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\cores\arduino;D:\appli\Arduino\hardware\arduino\avr\variants\mega;D:\appli\Arduino\hardware\tools\avr\avr\include;D:\appli\Arduino\hardware\tools\avr\avr\include\avr;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\RNG Arduino;D:\appli\Arduino\hardware\arduino\avr\libraries\SPI\src;D:\appli\Arduino\libraries\Ethernet\src;D:\appli\Arduino\libraries\Ethernet\src\utility;$(ProjectDir)..\..\..\..\..\..\Documents\Arduino\libraries\SdFat\src;D:\appli\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\..\..\..\..\Documents\Arduino\libraries;D:\appli\Arduino\hardware\arduino\avr\cores\arduino;D:\appli\Arduino\hardware\arduino\avr\variants\mega;D:\appli\Arduino\hardware\tools\avr\avr\include;D:\appli\Arduino\hardware\tools\avr\avr\include\avr;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\appli\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>$(ProjectDir)__vm\.RNG Arduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>__AVR_atmega2560__;__AVR_ATmega2560__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=10809;ARDUINO_AVR_MEGA2560;ARDUINO_ARCH_AVR;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -111,6 +111,9 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="CMD.ino">
+      <FileType>CppCode</FileType>
+    </None>
     <None Include="Ethernet.ino">
       <FileType>CppCode</FileType>
     </None>
@@ -122,9 +125,6 @@
     </None>
     <None Include="SD.ino">
       <FileType>CppCode</FileType>
-    </None>
-    <None Include="CMD.ino">
-      <FileType>CppClass</FileType>
     </None>
     <None Include="Serial.ino">
       <FileType>CppCode</FileType>

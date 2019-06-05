@@ -58,6 +58,8 @@ void freeCharMat(int *argc, char ***argv) {
 
 /*
 	generate {nb} [VN] [SD [Filename]]
+	threshold [nb/AUTO]
+	ethernet [IP/STATUS]
 */
 String commandAnalysis(String *cmd) {
 	int argc = 0;
@@ -161,13 +163,14 @@ String commandAnalysis(String *cmd) {
 			return "Failure: Please enter a strictly positive number!";
 		}
 
+
 		if (String(argv[0]).equalsIgnoreCase("threshold")) {
 			if (argc == 1) {
 				freeCharMat(&argc, &argv);
 				return String(getThreshold());
 			}
 
-			if (String(argv[1]).equalsIgnoreCase("auto")) {
+			if (String(argv[1]).equalsIgnoreCase("AUTO")) {
 				if (argc < 2 || (tmp = String(argv[2]).toInt()) <= 0) {
 					tmp = 10000000;
 				}
@@ -183,20 +186,38 @@ String commandAnalysis(String *cmd) {
 			return String(getThreshold());
 		}
 
+
+		if (String(argv[0]).equalsIgnoreCase("ethernet")) {
+			if (argc > 1) {
+				if (String(argv[1]).equalsIgnoreCase("IP")) {
+					freeCharMat(&argc, &argv);
+					return getEthernetIp();
+				}
+
+				if (String(argv[1]).equalsIgnoreCase("STATUS")) {
+					freeCharMat(&argc, &argv);
+					return getEthernetStatus();
+				}
+
+				freeCharMat(&argc, &argv);
+				return "Failure: Invalid parameters!";
+			}
+
+			freeCharMat(&argc, &argv);
+			start = millis();
+			if (initEthernet()) {
+				end = millis();
+				return "Success: " + String(end - start) + "ms";
+			}
+			else {
+				return "Failure";
+			}
+		}
+
 		freeCharMat(&argc, &argv);
 		return "Failure: Unknown command!";
 	}
 
 	freeCharMat(&argc, &argv);
 	return "Failure: Empty command!";
-}
-
-
-void serialCommand() {
-	if (Serial.available() > 0) {
-		String cmd = Serial.readStringUntil('\n');
-		digitalWrite(DEBUG_LED_PIN, HIGH);
-		Serial.println(commandAnalysis(&cmd));
-		digitalWrite(DEBUG_LED_PIN, LOW);
-	}
 }

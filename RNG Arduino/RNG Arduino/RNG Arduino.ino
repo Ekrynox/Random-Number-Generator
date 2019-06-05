@@ -41,12 +41,15 @@ void setup() {
 	adc_bit = digitalPinToBitMask(SPI_ADC_PIN);
 	adc_out = portOutputRegister(adc_port);
 	SET_ADC();
+
+	initEthernet();
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 	serialCommand();
-	//return;
+	//checkEthernetClient();
+	return;
 	while (true) {
 		Serial.println(genValue());
 	}

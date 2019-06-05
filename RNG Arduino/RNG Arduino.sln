@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RNGLib", "RNGLib\RNGLib.vcxproj", "{BB8A1E45-A90E-4992-B0BC-626645606830}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RNGTest", "RNGTest\RNGTest.vcxproj", "{3BA4F855-6474-4D04-B790-A6A0E38D1A8E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BB8A1E45-A90E-4992-B0BC-626645606830} = {BB8A1E45-A90E-4992-B0BC-626645606830}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

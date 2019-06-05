@@ -1,6 +1,6 @@
 int value;
 
-int threshold = 2700 << 2;
+int threshold = 1080 << 2;
 
 int getThreshold() {
 	return threshold >> 2;

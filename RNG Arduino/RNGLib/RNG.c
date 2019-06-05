@@ -4,12 +4,22 @@
 #include "stdlib.h"
 
 
-boolean initRNGLib() {
+#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
 
+
+void initRNGLib() {
+	#ifdef WIN32
+		WSADATA WSAData;
+		WSAStartup(MAKEWORD(2, 2), &WSAData);
+	#endif
 }
 
-boolean freeRNGLin() {
-
+void freeRNGLib() {
+	#ifdef WIN32
+		WSACleanup();
+	#endif
 }
 
 
@@ -36,26 +46,65 @@ RNG initRNGSerial(const wchar_t *port) {
 	dcbSerialParams.StopBits = ONESTOPBIT;
 	dcbSerialParams.Parity = NOPARITY;
 
-	SetCommState(device->hComm, &dcbSerialParams);
-
-	SetCommMask(device->hComm, EV_RXCHAR);
+	if (!SetCommState(device->hComm, &dcbSerialParams)) {
+		closeRNG(&device);
+		return NULL;
+	}
+		
+	if (!SetCommMask(device->hComm, EV_RXCHAR)) {
+		closeRNG(&device);
+		return NULL;
+	}
 
 	device->isSerial = true;
+	device->isEthernet = false;
 
 	return device;
 }
 
-void closeRNG(RNG device) {
+
+RNG initRNGEthernet(char addr[], int port) {
+	RNG device = (RNG)malloc(sizeof(RNG));
 	if (!device) {
+		return NULL;
+	}
+
+	device->sock = socket(AF_INET, SOCK_STREAM, 0);
+	device->sin.sin_addr.s_addr = inet_addr(addr);
+	device->sin.sin_family = AF_INET;
+	device->sin.sin_port = htons(port);
+
+	if (connect(device->sock, (SOCKADDR*)&(device->sin), sizeof(device->sin)) == SOCKET_ERROR) {
+		closesocket(device->sock);
+		free(device);
+		return NULL;
+	}
+
+	device->isSerial = false;
+	device->isEthernet = true;
+	return device;
+}
+
+
+void closeRNG(RNG *device) {
+	if (!device || !*device) {
+		device = NULL;
 		return;
 	}
 
-	if (device->isSerial) {
-		CloseHandle(device->hComm);
+	if ((*device)->isSerial) {
+		CloseHandle((*device)->hComm);
 	}
 
-	free(device);
+	if ((*device)->isEthernet) {
+		closesocket((*device)->sock);
+	}
+
+	free(*device);
+	device = NULL;
 }
+
+
 
 
 char *RNGGenerate(RNG device, int nb, boolean vn) {
@@ -70,8 +119,9 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 	if (device->isSerial) {
 		DWORD Bytes = 0;
 
+
 		int size = 12 + (int)log10(nb + 1);
-		if (vn) {
+		if (vn == true) {
 			size += 3;
 		}
 		char *bits = (char *)malloc(sizeof(char) * size);
@@ -81,7 +131,7 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 			return NULL;
 		}
 
-		if (vn) {
+		if (vn == true) {
 			sprintf(bits, "generate %d VN\n", nb);
 		}
 		else {
@@ -101,46 +151,13 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 		size = 0;
 		bits = (char *)malloc(sizeof(char) * (nb + 1));
 
-		int i = nb - nb % 8;
-
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
 			if (Bytes > 0) {
-				size += 8;
-				bits[size - 1] = TempChar & 0b00000001 ? '1' : '0';
-				bits[size - 2] = TempChar & 0b00000010 ? '1' : '0';
-				bits[size - 3] = TempChar & 0b00000100 ? '1' : '0';
-				bits[size - 4] = TempChar & 0b00001000 ? '1' : '0';
-				bits[size - 5] = TempChar & 0b00010000 ? '1' : '0';
-				bits[size - 6] = TempChar & 0b00100000 ? '1' : '0';
-				bits[size - 7] = TempChar & 0b01000000 ? '1' : '0';
-				bits[size - 8] = TempChar & 0b10000000 ? '1' : '0';
+				bits[size] = TempChar == '0' ? 0 : '1';
+				size++;
 			}
-		} while (Bytes > 0 && size < i);
-
-		if (size < nb) {
-			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
-			if (Bytes > 0) {
-				if (size < nb)
-					bits[size++] = TempChar & 0b10000000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b01000000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00100000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00010000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00001000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00000100 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00000010 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00000001 ? '1' : '0';
-			}
-		}
-
-
+		} while (Bytes > 0 && size < nb);
 
 		bits[size] = '\0';
 
