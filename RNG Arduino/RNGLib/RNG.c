@@ -29,7 +29,7 @@ RNG initRNGSerial(const wchar_t *port) {
 		return NULL;
 	}
 
-	device->hComm = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	device->hComm = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (device->hComm == INVALID_HANDLE_VALUE) {
 		free(device);
 		return NULL;
@@ -102,67 +102,4 @@ void closeRNG(RNG *device) {
 
 	free(*device);
 	device = NULL;
-}
-
-
-
-
-char *RNGGenerate(RNG device, int nb, boolean vn) {
-	if (!device) {
-		return NULL;
-	}
-
-	if (nb < 1) {
-		return NULL;
-	}
-
-	if (device->isSerial) {
-		DWORD Bytes = 0;
-
-
-		int size = 12 + (int)log10(nb + 1);
-		if (vn == true) {
-			size += 3;
-		}
-		char *bits = (char *)malloc(sizeof(char) * size);
-		char TempChar;
-
-		if (!bits) {
-			return NULL;
-		}
-
-		if (vn == true) {
-			sprintf(bits, "generate %d VN\n", nb);
-		}
-		else {
-			sprintf(bits, "generate %d\n", nb);
-		}
-
-		if (!WriteFile(device->hComm, bits, sizeof(char) * (size - 1), &Bytes, NULL)) {
-			free(bits);
-			return NULL;
-		}
-
-		WaitCommEvent(device->hComm, &Bytes, NULL);
-
-		Bytes = 0;
-
-		free(bits);
-		size = 0;
-		bits = (char *)malloc(sizeof(char) * (nb + 1));
-
-		do {
-			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
-			if (Bytes > 0) {
-				bits[size] = TempChar == '0' ? 0 : '1';
-				size++;
-			}
-		} while (Bytes > 0 && size < nb);
-
-		bits[size] = '\0';
-
-		return bits;
-	}
-
-	return NULL;
 }

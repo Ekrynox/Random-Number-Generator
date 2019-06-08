@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RNG.c" />
+    <ClCompile Include="RNGGenerate.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

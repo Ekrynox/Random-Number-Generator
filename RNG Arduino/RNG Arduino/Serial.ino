@@ -1,8 +1,9 @@
 bool generateSerial(long int nb) {
 	int i;
+	nb = ceil(nb / 8.0);
 
 	for (i = 0; i < nb; i++) {
-		Serial.write(genBitChar());
+		Serial.write(genByteChar());
 	}
 
 	return true;
@@ -10,21 +11,26 @@ bool generateSerial(long int nb) {
 
 
 bool generateSerialVN(long int nb) {
-	int i;
+	int i, j;
+	nb = ceil(nb / 8.0);
+	char c;
 
-	for (i = 0; i < nb;) {
-		if (genBit()) {
+	for (i = 0; i < nb; i++) {
+		c = 0;
+		j = 7;
+		while (j >= 0) {
 			if (!genBit()) {
-				Serial.write('1');
-				i++;
+				if (genBit()) {
+					c += 1 << j--;
+				}
+			}
+			else {
+				if (!genBit()) {
+					j--;
+				}
 			}
 		}
-		if (!genBit()) {
-			if (genBit()) {
-				Serial.write('0');
-				i++;
-			}
-		}
+		Serial.write(c);
 	}
 
 	return true;
