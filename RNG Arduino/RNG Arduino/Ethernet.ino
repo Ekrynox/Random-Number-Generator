@@ -19,13 +19,13 @@ bool initEthernet() {
 
 String getEthernetStatus() {
 	if (Ethernet.linkStatus() == Unknown) {
-		return "Ethernet status unknown. Link status detection is only available with W5200 and W5500.";
+		return "Unknown";
 	}
 	else if (Ethernet.linkStatus() == LinkON) {
-		return "Ethernet is connected";
+		return "Connected";
 	}
 	else if (Ethernet.linkStatus() == LinkOFF) {
-		return "Ethernet is disconnected";
+		return "Disconnected";
 	}
 }
 

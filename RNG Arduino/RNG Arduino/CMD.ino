@@ -58,166 +58,172 @@ void freeCharMat(int *argc, char ***argv) {
 
 /*
 	generate {nb} [VN] [SD [Filename]]
-	threshold [nb/AUTO]
+	threshold {1/2} [nb/AUTO]
 	ethernet [IP/STATUS]
 */
-String commandAnalysis(String *cmd) {
+void commandAnalysis(String *cmd, void(*callback)(String)) {
 	int argc = 0;
 	char **argv = NULL;
+
+	int i = 0;
+	bool vn = false;
 
 	splitCMD(cmd, &argc, &argv);
 
 	long int tmp;
-	unsigned long int start, end;
+	int tmp2;
 
 	if (argc > 0) {
 
-		if (String(argv[0]).equalsIgnoreCase("generate")) {
-			if (argc > 1 && (tmp = String(argv[1]).toInt()) > 0) {
-				if (argc == 2) {
-					start = millis();
-					if (generateSerial(tmp)) {
-						end = millis();
-						freeCharMat(&argc, &argv);
-						return "Success: " + String(end - start) + "ms";
-					}
-					else {
-						freeCharMat(&argc, &argv);
-						return "Failure";
-					}
-				}
-
-				if (String(argv[2]).equalsIgnoreCase("SD")) {
-					if (argc == 3) {
-						start = millis();
-						if (generateSD(tmp, "test.txt")) {
-							end = millis();
-							freeCharMat(&argc, &argv);
-							return "Success: " + String(end - start) + "ms";
-						}
-						else {
-							freeCharMat(&argc, &argv);
-							return "Failure";
-						}
-					}
-
-					start = millis();
-					if (generateSD(tmp, argv[3])) {
-						end = millis();
-						freeCharMat(&argc, &argv);
-						return "Success: " + String(end - start) + "ms";
-					}
-					else {
-						freeCharMat(&argc, &argv);
-						return "Failure";
-					}
-				}
-
-				if (String(argv[2]).equalsIgnoreCase("VN")) {
-					if (argc == 3) {
-						start = millis();
-						if (generateSerialVN(tmp)) {
-							end = millis();
-							freeCharMat(&argc, &argv);
-							return "Success: " + String(end - start) + "ms";
-						}
-						else {
-							freeCharMat(&argc, &argv);
-							return "Failure";
-						}
-					}
-
-					if (String(argv[3]).equalsIgnoreCase("SD")) {
-						if (argc == 4) {
-							start = millis();
-							if (generateSDVN(tmp, "test.txt")) {
-								end = millis();
-								freeCharMat(&argc, &argv);
-								return "Success: " + String(end - start) + "ms";
-							}
-							else {
-								freeCharMat(&argc, &argv);
-								return "Failure";
-							}
-						}
-
-						start = millis();
-						if (generateSDVN(tmp, argv[4])) {
-							end = millis();
-							freeCharMat(&argc, &argv);
-							return "Success: " + String(end - start) + "ms";
-						}
-						else {
-							freeCharMat(&argc, &argv);
-							return "Failure";
-						}
-					}
-
-				}
-
+		if (String(argv[i]).equalsIgnoreCase("generate")) {
+			i++;
+			if (argc > i && (tmp = String(argv[i]).toInt()) <= 0) {
 				freeCharMat(&argc, &argv);
-				return "Failure: Invalid parameters!";
+				(*callback)("Failure: Please enter a strictly positive number for bits");
+				return;
+			}
+			i++;
+
+			if (argc == i) {
+				generateSerial(tmp, vn, callback);
+				freeCharMat(&argc, &argv);
+				return;
 			}
 
+			if (String(argv[i]).equalsIgnoreCase("VN")) {
+				i++;
+				vn = true;
+			}
+
+			if (String(argv[i]).equalsIgnoreCase("SD")) {
+				String filename = "test.txt";
+				if (argc > i) {
+					filename = argv[++i];
+				}
+
+				generateSD(tmp, filename, vn, callback);
+				freeCharMat(&argc, &argv);
+				return;
+			}
+
+			generateSerial(tmp, vn, callback);
 			freeCharMat(&argc, &argv);
-			return "Failure: Please enter a strictly positive number!";
+			return;
 		}
 
 
-		if (String(argv[0]).equalsIgnoreCase("threshold")) {
-			if (argc == 1) {
+		if (String(argv[i]).equalsIgnoreCase("threshold")) {
+			i++;
+			if (argc == i) {
 				freeCharMat(&argc, &argv);
-				return String(getThreshold());
+				(*callback)(String(getThreshold1()) + " " + String(getThreshold2()));
+				return;
 			}
 
-			if (String(argv[1]).equalsIgnoreCase("AUTO")) {
-				if (argc < 2 || (tmp = String(argv[2]).toInt()) <= 0) {
+			if (String(argv[i]).toInt() <= 0) {
+				freeCharMat(&argc, &argv);
+				(*callback)("Failure: Please enter a strictly positive number for threshold id");
+				return;
+			}
+			tmp2 = String(argv[i]).toInt();
+			i++;
+
+			if (argc == i) {
+				freeCharMat(&argc, &argv);
+				switch (tmp2) {
+				case 1:
+					(*callback)(String(getThreshold1()));
+					break;
+				case 2:
+					(*callback)(String(getThreshold2()));
+					break;
+				default:
+					(*callback)("Failure: Invalid threshold id");
+					break;
+				}
+				return;
+			}
+
+			if (String(argv[i]).equalsIgnoreCase("AUTO")) {
+				i++;
+				if (argc < i || (tmp = String(argv[i]).toInt()) <= 0) {
 					tmp = 10000000;
 				}
-				start = millis();
-				adjustThreshold(tmp);
-				end = millis();
 				freeCharMat(&argc, &argv);
-				return String(getThreshold()) + " : " + String(end - start) + "ms";
+				switch (tmp2) {
+				case 1:
+					adjustThreshold1(tmp);
+					(*callback)(String(getThreshold1()));
+					break;
+				case 2:
+					adjustThreshold2(tmp);
+					(*callback)(String(getThreshold2()));
+					break;
+				default:
+					(*callback)("Failure: Invalid threshold id");
+					break;
+				}
+				return;
 			}
 
-			setThreshold(String(argv[1]).toInt());
+			if ((tmp = String(argv[i]).toInt()) <= 0) {
+				(*callback)("Failure: Please enter a strictly positive number for threshold");
+			}
 			freeCharMat(&argc, &argv);
-			return String(getThreshold());
+			switch (tmp2) {
+			case 1:
+				setThreshold1(tmp);
+				(*callback)(String(getThreshold1()));
+				break;
+			case 2:
+				setThreshold2(tmp);
+				(*callback)(String(getThreshold2()));
+				break;
+			default:
+				(*callback)("Failure: Invalid threshold id");
+				break;
+			}
+			return;
 		}
 
 
-		if (String(argv[0]).equalsIgnoreCase("ethernet")) {
-			if (argc > 1) {
-				if (String(argv[1]).equalsIgnoreCase("IP")) {
+		if (String(argv[i]).equalsIgnoreCase("ethernet")) {
+			i++;
+			if (argc > i) {
+				if (String(argv[i]).equalsIgnoreCase("IP")) {
 					freeCharMat(&argc, &argv);
-					return getEthernetIp();
+					(*callback)(getEthernetIp());
+					return;
 				}
 
-				if (String(argv[1]).equalsIgnoreCase("STATUS")) {
+				if (String(argv[i]).equalsIgnoreCase("STATUS")) {
 					freeCharMat(&argc, &argv);
-					return getEthernetStatus();
+					(*callback)(getEthernetStatus());
+					return;
 				}
 
 				freeCharMat(&argc, &argv);
-				return "Failure: Invalid parameters!";
+				(*callback)("Failure: Invalid parameters");
+				return;
 			}
 
 			freeCharMat(&argc, &argv);
-			start = millis();
 			if (initEthernet()) {
-				end = millis();
-				return "Success: " + String(end - start) + "ms";
+				(*callback)("Success");
+				return;
 			}
 			else {
-				return "Failure";
+				(*callback)("Failure");
+				return;
 			}
 		}
 
 		freeCharMat(&argc, &argv);
-		return "Failure: Unknown command!";
+		(*callback)("Failure: Unknown command");
+		return;
 	}
 
 	freeCharMat(&argc, &argv);
-	return "Failure: Empty command!";
+	(*callback)("Failure: Empty command");
+	return;
 }

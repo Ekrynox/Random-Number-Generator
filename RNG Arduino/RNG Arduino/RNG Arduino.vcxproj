@@ -131,6 +131,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers.h" />
     <ClInclude Include="__vm\.RNG Arduino.vsarduino.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
