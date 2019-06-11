@@ -51,6 +51,18 @@ RNG initRNGSerial(const wchar_t *port) {
 		return NULL;
 	}
 
+	COMMTIMEOUTS timeouts = { 0 };
+	timeouts.ReadIntervalTimeout = 50; // in milliseconds
+	timeouts.ReadTotalTimeoutConstant = 50; // in milliseconds
+	timeouts.ReadTotalTimeoutMultiplier = 10; // in milliseconds
+	timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
+	timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
+
+	if(!SetCommTimeouts(device->hComm, &timeouts)) {
+		closeRNG(&device);
+		return NULL;
+	}
+
 	device->isSerial = true;
 	device->isEthernet = false;
 

@@ -79,7 +79,6 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 		} while (Bytes > 0 && TempChar != '\n');
 
 		bits[i - 1] = '\0';
-		printf("a%s", bits);
 
 		if (strncmp("OK", bits, 2) != 0) {
 			free(bits);
@@ -177,15 +176,20 @@ boolean RNGGenerateSD(RNG device, int nb, boolean vn, char filename[]) {
 	}
 
 	if (device->isSerial) {
-		//Send command
+		//Force clear read register
 		DWORD Bytes = 0;
+		char TempChar;
+		do {
+			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
+		} while (Bytes > 0);
 
-		int size = 16 + (int)log10(nb + 1) + (int)strlen(filename);
+		//Send Data
+		Bytes = 0;
+		int size = 16 + (int)log10(nb + 1) + (int) strlen(filename);
 		if (vn == true) {
 			size += 3;
 		}
 		char *bits = (char *)malloc(sizeof(char) * size);
-		char TempChar;
 
 		if (!bits) {
 			return false;
@@ -202,37 +206,58 @@ boolean RNGGenerateSD(RNG device, int nb, boolean vn, char filename[]) {
 			free(bits);
 			return false;
 		}
-		Bytes = 0;
 		free(bits);
+		bits = NULL;
 
 		//Wait Ok or Failure
 		int i = 1;
+		Bytes = 0;
 		bits = (char *)malloc(sizeof(char) * i);
+		if (!bits) {
+			return false;
+		}
 
+		if (!SetCommMask(device->hComm, EV_RXCHAR)) {
+			closeRNG(&device);
+			return false;
+		}
 		WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
-			bits = (char *)realloc(bits, sizeof(char) * ++i);
-			if (!bits) {
-				return false;
+			if (Bytes > 0) {
+				bits = (char *)realloc(bits, sizeof(char) * ++i);
+				if (!bits) {
+					return false;
+				}
+				bits[i - 2] = TempChar;
 			}
-			bits[i - 2] = TempChar;
 		} while (Bytes > 0 && TempChar != '\n');
 
 		bits[i - 1] = '\0';
 
-		if (strncmp("Ok", bits, 2) != 0) {
+		if (strncmp("OK", bits, 2) != 0) {
 			free(bits);
 			return false;
 		}
 
-		Bytes = 0;
 		free(bits);
+		bits = NULL;
 
 
 		//Wait end
+		Bytes = 0;
+		if (!SetCommMask(device->hComm, EV_RXCHAR)) {
+			closeRNG(&device);
+			return false;
+		}
 		WaitCommEvent(device->hComm, &Bytes, NULL);
+
+		Bytes = 0;
+		do {
+			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
+		} while (Bytes > 0);
+
 
 		return true;
 	}
