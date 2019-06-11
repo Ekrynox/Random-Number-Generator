@@ -45,35 +45,44 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 			free(bits);
 			return NULL;
 		}
-		Bytes = 0;
 		free(bits);
+		bits = NULL;
 
 		//Wait Ok or Failure
 		int i = 1;
+		Bytes = 0;
 		bits = (char *)malloc(sizeof(char) * i);
+		if (!bits) {
+			return NULL;
+		}
 
 		WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
-			bits = (char *)realloc(bits, sizeof(char) * ++i);
-			if (!bits) {
-				return NULL;
+			if (Bytes > 0) {
+				bits = (char *)realloc(bits, sizeof(char) * ++i);
+				if (!bits) {
+					return NULL;
+				}
+				bits[i - 2] = TempChar;
 			}
-			bits[i - 2] = TempChar;
 		} while (Bytes > 0 && TempChar != '\n');
 
 		bits[i - 1] = '\0';
+		printf("a%s", bits);
 
 		if (strncmp("OK", bits, 2) != 0) {
 			free(bits);
 			return NULL;
 		}
 
-		Bytes = 0;
 		free(bits);
+		bits = NULL;
+
 
 		//Wait data
+		Bytes = 0;
 		size = 0;
 		bits = (char *)malloc(sizeof(char) * (nb + 1));
 		if (!bits) {
@@ -81,7 +90,7 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 		}
 		i = nb - nb % 8;
 
-		//WaitCommEvent(device->hComm, &Bytes, NULL);
+		WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
@@ -126,6 +135,11 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 		//Wait end
 		Bytes = 0;
 		WaitCommEvent(device->hComm, &Bytes, NULL);
+		Bytes = 0;
+		do {
+			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
+		} while (Bytes > 0);
+
 
 		return bits;
 	}

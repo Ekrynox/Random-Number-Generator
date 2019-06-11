@@ -8,10 +8,20 @@ int main(int argc, char **argv) {
 	}
 
 	if (argc > 1 && atoi(argv[1]) > 0) {
-		printf("%s", RNGGenerate(device, atoi(argv[1]), false));
+		char *bits = RNGGenerate(device, atoi(argv[1]), false);
+		if (!bits) {
+			return -1;
+		}
+		printf("%s", bits);
+		free(bits);
 	}
 	else {
-		printf("%s", RNGGenerate(device, 100000, false));
+		char *bits = RNGGenerate(device, 100000, false);
+		if (!bits) {
+			return -1;
+		}
+		printf("%s", bits);
+		free(bits);
 	}
 
 	closeRNG(&device);

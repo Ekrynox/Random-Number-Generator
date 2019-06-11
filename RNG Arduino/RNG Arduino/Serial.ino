@@ -27,6 +27,7 @@ bool generateSerial(long int nb, bool vn, void(*callback)(String)) {
 
 void serialSendData(String data) {
 	Serial.println(data);
+	Serial.flush();
 }
 
 
