@@ -23,7 +23,7 @@ bool generateSD(long int nb, String filename, bool vn, void(*callback)(String)) 
 		return false;
 	}
 
-	(*callback)("Ok");
+	(*callback)("OK");
 
 	int i;
 	unsigned long start = millis();

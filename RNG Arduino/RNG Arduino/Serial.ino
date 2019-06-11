@@ -2,7 +2,7 @@ bool generateSerial(long int nb, bool vn, void(*callback)(String)) {
 	int i;
 	nb = ceil(nb / 8.0);
 
-	(*callback)("Ok");
+	(*callback)("OK");
 
 	unsigned long start = millis();
 

@@ -20,8 +20,8 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 	}
 
 	if (device->isSerial) {
+		//Send command
 		DWORD Bytes = 0;
-
 
 		int size = 12 + (int)log10(nb + 1);
 		if (vn == true) {
@@ -45,16 +45,43 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 			free(bits);
 			return NULL;
 		}
-
 		Bytes = 0;
-
 		free(bits);
-		size = 0;
-		bits = (char *)malloc(sizeof(char) * (nb + 1));
 
-		int i = nb - nb % 8;
+		//Wait Ok or Failure
+		int i = 1;
+		bits = (char *)malloc(sizeof(char) * i);
 
 		WaitCommEvent(device->hComm, &Bytes, NULL);
+
+		do {
+			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
+			bits = (char *)realloc(bits, sizeof(char) * ++i);
+			if (!bits) {
+				return NULL;
+			}
+			bits[i - 2] = TempChar;
+		} while (Bytes > 0 && TempChar != '\n');
+
+		bits[i - 1] = '\0';
+
+		if (strncmp("OK", bits, 2) != 0) {
+			free(bits);
+			return NULL;
+		}
+
+		Bytes = 0;
+		free(bits);
+
+		//Wait data
+		size = 0;
+		bits = (char *)malloc(sizeof(char) * (nb + 1));
+		if (!bits) {
+			return NULL;
+		}
+		i = nb - nb % 8;
+
+		//WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
@@ -94,6 +121,11 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 		}
 
 		bits[size] = '\0';
+
+
+		//Wait end
+		Bytes = 0;
+		WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		return bits;
 	}
@@ -102,24 +134,20 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 }
 
 
-char *RNGGenerateSD(RNG device, int nb, boolean vn, char filename[]) {
+boolean RNGGenerateSD(RNG device, int nb, boolean vn, char filename[]) {
 	if (!device) {
-		return NULL;
+		return false;
 	}
 
 	if (nb < 1) {
-		return NULL;
-	}
-
-	if (strlen(filename) <= 0) {
-		return NULL;
+		return false;
 	}
 
 	if (device->isSerial) {
+		//Send command
 		DWORD Bytes = 0;
 
-
-		int size = 16 + (int)log10(nb + 1);
+		int size = 16 + (int)log10(nb + 1) + (int)strlen(filename);
 		if (vn == true) {
 			size += 3;
 		}
@@ -127,72 +155,54 @@ char *RNGGenerateSD(RNG device, int nb, boolean vn, char filename[]) {
 		char TempChar;
 
 		if (!bits) {
-			return NULL;
+			return false;
 		}
 
 		if (vn == true) {
-			sprintf(bits, "generate %d VN SD %s\n", nb, filename);
+			sprintf(bits, "generate %d VN sd %s\n", nb, filename);
 		}
 		else {
-			sprintf(bits, "generate %d SD %s\n", nb, filename);
+			sprintf(bits, "generate %d sd %s\n", nb, filename);
 		}
 
 		if (!WriteFile(device->hComm, bits, sizeof(char) * (size - 1), &Bytes, NULL)) {
 			free(bits);
-			return NULL;
+			return false;
 		}
-
 		Bytes = 0;
-
 		free(bits);
-		size = 0;
-		bits = (char *)malloc(sizeof(char) * (nb + 1));
 
-		int i = nb - nb % 8;
+		//Wait Ok or Failure
+		int i = 1;
+		bits = (char *)malloc(sizeof(char) * i);
 
 		WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
-			if (Bytes > 0) {
-				size += 8;
-				bits[size - 1] = TempChar & 0b00000001 ? '1' : '0';
-				bits[size - 2] = TempChar & 0b00000010 ? '1' : '0';
-				bits[size - 3] = TempChar & 0b00000100 ? '1' : '0';
-				bits[size - 4] = TempChar & 0b00001000 ? '1' : '0';
-				bits[size - 5] = TempChar & 0b00010000 ? '1' : '0';
-				bits[size - 6] = TempChar & 0b00100000 ? '1' : '0';
-				bits[size - 7] = TempChar & 0b01000000 ? '1' : '0';
-				bits[size - 8] = TempChar & 0b10000000 ? '1' : '0';
+			bits = (char *)realloc(bits, sizeof(char) * ++i);
+			if (!bits) {
+				return false;
 			}
-		} while (Bytes > 0 && size < i);
+			bits[i - 2] = TempChar;
+		} while (Bytes > 0 && TempChar != '\n');
 
-		if (size < nb) {
-			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
-			if (Bytes > 0) {
-				if (size < nb)
-					bits[size++] = TempChar & 0b10000000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b01000000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00100000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00010000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00001000 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00000100 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00000010 ? '1' : '0';
-				if (size < nb)
-					bits[size++] = TempChar & 0b00000001 ? '1' : '0';
-			}
+		bits[i - 1] = '\0';
+
+		if (strncmp("Ok", bits, 2) != 0) {
+			free(bits);
+			return false;
 		}
 
-		bits[size] = '\0';
+		Bytes = 0;
+		free(bits);
 
-		return bits;
+
+		//Wait end
+		WaitCommEvent(device->hComm, &Bytes, NULL);
+
+		return true;
 	}
 
-	return NULL;
+	return false;
 }
