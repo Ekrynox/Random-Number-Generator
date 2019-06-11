@@ -20,15 +20,20 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 	}
 
 	if (device->isSerial) {
-		//Send command
+		//Force clear read register
 		DWORD Bytes = 0;
+		char TempChar;
+		do {
+			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
+		} while (Bytes > 0);
 
+		//Send Data
+		Bytes = 0;
 		int size = 12 + (int)log10(nb + 1);
 		if (vn == true) {
 			size += 3;
 		}
 		char *bits = (char *)malloc(sizeof(char) * size);
-		char TempChar;
 
 		if (!bits) {
 			return NULL;
@@ -56,6 +61,10 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 			return NULL;
 		}
 
+		if (!SetCommMask(device->hComm, EV_RXCHAR)) {
+			closeRNG(&device);
+			return NULL;
+		}
 		WaitCommEvent(device->hComm, &Bytes, NULL);
 
 		do {
@@ -90,7 +99,12 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 		}
 		i = nb - nb % 8;
 
+		if (!SetCommMask(device->hComm, EV_RXCHAR)) {
+			closeRNG(&device);
+			return NULL;
+		}
 		WaitCommEvent(device->hComm, &Bytes, NULL);
+
 
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);
@@ -134,7 +148,12 @@ char *RNGGenerate(RNG device, int nb, boolean vn) {
 
 		//Wait end
 		Bytes = 0;
+		if (!SetCommMask(device->hComm, EV_RXCHAR)) {
+			closeRNG(&device);
+			return NULL;
+		}
 		WaitCommEvent(device->hComm, &Bytes, NULL);
+
 		Bytes = 0;
 		do {
 			ReadFile(device->hComm, &TempChar, sizeof(char), &Bytes, NULL);

@@ -29,7 +29,7 @@ RNG initRNGSerial(const wchar_t *port) {
 		return NULL;
 	}
 
-	device->hComm = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	device->hComm = CreateFile(port, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (device->hComm == INVALID_HANDLE_VALUE) {
 		free(device);
 		return NULL;
@@ -47,11 +47,6 @@ RNG initRNGSerial(const wchar_t *port) {
 	dcbSerialParams.Parity = NOPARITY;
 
 	if (!SetCommState(device->hComm, &dcbSerialParams)) {
-		closeRNG(&device);
-		return NULL;
-	}
-		
-	if (!SetCommMask(device->hComm, EV_RXCHAR)) {
 		closeRNG(&device);
 		return NULL;
 	}
