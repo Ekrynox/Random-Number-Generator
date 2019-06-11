@@ -61,11 +61,10 @@ void setup() {
 	adc2_out = portOutputRegister(adc2_port);
 	SET_ADC2();
 
-	initEthernet();
+	loadSave();
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 	serialCommand();
-	//checkEthernetClient();
 }

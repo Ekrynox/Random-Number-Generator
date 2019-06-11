@@ -45,6 +45,8 @@ void adjustThreshold2(long int nb);
 
 //SD.ino
 bool generateSD(long int nb, String filename, bool vn, void(*callback)(String));
+bool save(void(*callback)(String));
+bool loadSave();
 
 
 //Serial.ino

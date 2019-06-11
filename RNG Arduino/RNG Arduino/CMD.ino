@@ -58,8 +58,9 @@ void freeCharMat(int *argc, char ***argv) {
 
 /*
 	generate {nb} [VN] [SD [Filename]]
-	threshold {1/2} [nb/AUTO]
+	threshold [1/2 [nb/AUTO]]
 	ethernet [IP/STATUS]
+	save
 */
 void commandAnalysis(String *cmd, void(*callback)(String)) {
 	int argc = 0;
@@ -166,8 +167,8 @@ void commandAnalysis(String *cmd, void(*callback)(String)) {
 				return;
 			}
 
-			if ((tmp = String(argv[i]).toInt()) <= 0) {
-				(*callback)("Failure: Please enter a strictly positive number for threshold");
+			if ((tmp = String(argv[i]).toInt()) < 0) {
+				(*callback)("Failure: Please enter a positive number for threshold");
 			}
 			freeCharMat(&argc, &argv);
 			switch (tmp2) {
@@ -217,6 +218,14 @@ void commandAnalysis(String *cmd, void(*callback)(String)) {
 				return;
 			}
 		}
+
+
+		if (String(argv[i]).equalsIgnoreCase("save")) {
+			freeCharMat(&argc, &argv);
+			save(callback);
+			return;
+		}
+
 
 		freeCharMat(&argc, &argv);
 		(*callback)("Failure: Unknown command");
